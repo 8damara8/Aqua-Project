@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
@@ -12,12 +11,15 @@ import {
 import type { ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BuscadorPeces } from '../components/BuscadorPeces';
+import { ListaPecesAgrupada } from '../components/ListaPecesAgrupada';
 import { ListaVacia } from '../components/ListaVacia';
 import { PezCard } from '../components/PezCard';
+import { SelectorVista } from '../components/SelectorVista';
 import { SeparadorLista } from '../components/SeparadorLista';
 import { peces } from '../data/peces';
 import { colors } from '../theme/colors';
-import type { Pez } from '../types';
+import type { ModoVista, Pez } from '../types';
+import { cerrarTeclado } from '../utils/cerrarTeclado';
 import { normalizarTexto } from '../utils/normalizarTexto';
 
 // Cómo se dibuja cada elemento de la lista
@@ -26,15 +28,12 @@ const renderPez: ListRenderItem<Pez> = ({ item }) => <PezCard pez={item} />;
 // Clave única por elemento: React la usa para no redibujar de más
 const obtenerClave = (pez: Pez): string => pez.id;
 
-// Cierra el teclado (se usa al empezar a desplazar la lista)
-const cerrarTeclado = (): void => {
-  Keyboard.dismiss();
-};
-
 // Pantalla principal: encabezado + lista de peces del acuario
 export function HomeScreen(): React.JSX.Element {
   // Texto que escribe el usuario en el buscador
   const [busqueda, setBusqueda] = useState('');
+  // Vista activa: lista simple o agrupada por tipo de agua
+  const [vista, setVista] = useState<ModoVista>('lista');
   // true mientras se "recarga" la lista (muestra el círculo de carga)
   const [refrescando, setRefrescando] = useState(false);
   // Guardamos el temporizador para poder cancelarlo si la pantalla se cierra
@@ -61,6 +60,21 @@ export function HomeScreen(): React.JSX.Element {
         normalizarTexto(pez.nombreCientifico).includes(termino),
     );
   }, [busqueda]);
+
+  // Mensaje cuando no hay resultados (distinto si se está buscando)
+  const mensajeVacio =
+    busqueda === '' ? 'No hay peces en el acuario' : `Ningún pez coincide con "${busqueda}"`;
+
+  // Mismo control de refresco para las dos listas
+  const controlRefresco = (
+    <RefreshControl
+      refreshing={refrescando}
+      onRefresh={refrescar}
+      tintColor={colors.acento} // color del círculo en iOS
+      colors={[colors.acento]} // color del círculo en Android
+      progressBackgroundColor={colors.tarjeta}
+    />
+  );
 
   // Al desmontar la pantalla, cancelamos el temporizador pendiente
   useEffect(() => {
@@ -91,36 +105,32 @@ export function HomeScreen(): React.JSX.Element {
         {/* Buscador: filtra la lista mientras se escribe */}
         <BuscadorPeces valor={busqueda} onCambiar={setBusqueda} />
 
-        {/* FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map) */}
-        <FlatList
-          data={pecesFiltrados}
-          renderItem={renderPez}
-          keyExtractor={obtenerClave}
-          ItemSeparatorComponent={SeparadorLista}
-          ListEmptyComponent={
-            <ListaVacia
-              mensaje={
-                busqueda === ''
-                  ? 'No hay peces en el acuario'
-                  : `Ningún pez coincide con "${busqueda}"`
-              }
-            />
-          }
-          contentContainerStyle={styles.lista}
-          // 'handled': tocar un botón de la tarjeta funciona sin cerrar antes el teclado
-          keyboardShouldPersistTaps="handled"
-          // Al empezar a desplazar la lista, se cierra el teclado
-          onScrollBeginDrag={cerrarTeclado}
-          refreshControl={
-            <RefreshControl
-              refreshing={refrescando}
-              onRefresh={refrescar}
-              tintColor={colors.acento} // color del círculo en iOS
-              colors={[colors.acento]} // color del círculo en Android
-              progressBackgroundColor={colors.tarjeta}
-            />
-          }
-        />
+        {/* Selector: lista simple o agrupada por tipo de agua */}
+        <SelectorVista valor={vista} onCambiar={setVista} />
+
+        {vista === 'lista' ? (
+          // FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map)
+          <FlatList
+            data={pecesFiltrados}
+            renderItem={renderPez}
+            keyExtractor={obtenerClave}
+            ItemSeparatorComponent={SeparadorLista}
+            ListEmptyComponent={<ListaVacia mensaje={mensajeVacio} />}
+            contentContainerStyle={styles.lista}
+            // 'handled': tocar un botón de la tarjeta funciona sin cerrar antes el teclado
+            keyboardShouldPersistTaps="handled"
+            // Al empezar a desplazar la lista, se cierra el teclado
+            onScrollBeginDrag={cerrarTeclado}
+            refreshControl={controlRefresco}
+          />
+        ) : (
+          // SectionList: los mismos peces, agrupados por tipo de agua
+          <ListaPecesAgrupada
+            peces={pecesFiltrados}
+            mensajeVacio={mensajeVacio}
+            refreshControl={controlRefresco}
+          />
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
