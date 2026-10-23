@@ -17,6 +17,22 @@ pnpm typecheck    # verificar TypeScript
 pnpm seguridad    # auditoría de dependencias
 ```
 
+## Qué tiene la app hasta ahora
+- **Semana 1:** tarjetas de peces con `View`, `Text`, `Image`, `Pressable` y Flexbox.
+- **Semana 2:** catálogo de 12 peces con `FlatList` y `SectionList` (agrupado por tipo de agua),
+  buscador en tiempo real (sin tildes ni mayúsculas), chips de filtro, pull-to-refresh,
+  manejo del teclado y tema reutilizable (`colors`, `spacing`, `typography`).
+
+## Estructura de `src/`
+```
+components/   un componente por archivo (PezCard, BuscadorPeces, ChipsFiltro, ...)
+data/         datos de ejemplo (peces.ts)
+screens/      pantallas (HomeScreen)
+theme/        colors.ts, spacing.ts, typography.ts
+types/        tipos de TypeScript (Pez, TipoAgua, ...)
+utils/        funciones pequeñas (normalizarTexto, cerrarTeclado)
+```
+
 ## Seguridad
 - Versiones exactas (sin `^` ni `~`) y `pnpm-lock.yaml` versionado.
 - `.npmrc`: `minimum-release-age=1440` (no instala paquetes de menos de 24 h).

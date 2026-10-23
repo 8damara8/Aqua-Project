@@ -97,4 +97,19 @@ Cuando el usuario confirme que la semana funciona, dile que abra una **sesión n
 > «Lee `handoffs/week-03.md` en la rama `week-03` del repo https://github.com/8damara8/Juan-Felipe-Maradey-Navarro y ejecútalo.»
 
 ## 9. Notas para la siguiente semana
-_(la persona que cierre esta semana completa esto: qué se omitió, qué se adaptó, qué debe saber la semana siguiente)_
+**Qué se hizo:** los 7 pasos de la sección 3, un commit por paso. No se añadió ninguna dependencia.
+
+**Qué se adaptó / decisiones:**
+- Las 8 imágenes nuevas (`guppy`, `dorado`, `corydora`, `disco`, `cirujano`, `mariposa`, `damisela`, `cardenal`) son ilustraciones planas generadas con Python/PIL, en el mismo estilo de la semana 1. El script no está en el repo. Se pueden reemplazar por fotos reales manteniendo los nombres de archivo.
+- Como todavía no hay navegación (llega en la semana 3), la «segunda vista» con `SectionList` es un selector dentro de `HomeScreen` («Todos los peces» / «Por tipo de agua»). En la semana 3 se puede convertir en pantalla o pestaña.
+- La búsqueda y los chips (Todos / Dulce / Salada) se combinan y se aplican a las dos vistas.
+- `ListaPecesAgrupada` recibe el `RefreshControl` ya armado desde `HomeScreen` (no se envuelve en otro componente porque `ScrollView` lo clona).
+- Pull-to-refresh **simulado** (`setTimeout` de 1,5 s). Cuando haya API real, `refrescar` en `HomeScreen` debe volver a pedir los datos.
+- `typography.ts` usa `as const satisfies Record<string, TextStyle>` y se combina con el color en cada componente (`...typography.nombre`).
+
+**Lo que debe saber la semana 3:**
+- El botón «Ver ficha» de `PezCard` sigue siendo un `Alert`; con React Navigation debería abrir una pantalla de detalle.
+- `HomeScreen` concentra el estado (búsqueda, filtro, vista, refresco). Si crece, conviene moverlo a un hook propio.
+- Utilidades nuevas: `src/utils/normalizarTexto.ts` y `src/utils/cerrarTeclado.ts`. Tipos nuevos: `ModoVista`, `SeccionPeces`, `FiltroAgua`.
+
+**Verificación hecha:** `pnpm typecheck` 0 errores; `pnpm seguridad` solo la excepción conocida; `expo export --platform android` compila. Pendiente: confirmación visual del usuario en Expo Go (SDK 57) y `git push` (la sesión que ejecutó esta semana no tenía credenciales de GitHub).
