@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
 import { radius, spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -7,16 +7,18 @@ import type { Pez } from '../types';
 
 interface PezCardProps {
   pez: Pez;
+  // Qué hacer al tocar «Ver ficha» (la pantalla decide: navegar, abrir un modal, etc.)
+  onVerFicha: (pez: Pez) => void;
 }
 
 // Tarjeta reutilizable: muestra un pez con su imagen, datos y un botón
-export function PezCard({ pez }: PezCardProps): React.JSX.Element {
+export function PezCard({ pez, onVerFicha }: PezCardProps): React.JSX.Element {
   // Estilo de la etiqueta de agua según el tipo (dulce o salada)
   const estiloAgua = pez.tipoAgua === 'dulce' ? styles.aguaDulce : styles.aguaSalada;
 
-  // Acción del botón: por ahora solo muestra una alerta
+  // Acción del botón: avisa a la pantalla que se quiere ver la ficha de este pez
   const verFicha = (): void => {
-    Alert.alert(pez.nombre, `${pez.nombreCientifico}\nTemperatura: ${pez.temperaturaC}`);
+    onVerFicha(pez);
   };
 
   return (

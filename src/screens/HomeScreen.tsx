@@ -18,6 +18,7 @@ import { PezCard } from '../components/PezCard';
 import { SelectorVista } from '../components/SelectorVista';
 import { SeparadorLista } from '../components/SeparadorLista';
 import { peces } from '../data/peces';
+import type { ListaPecesProps } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -25,14 +26,11 @@ import type { FiltroAgua, ModoVista, Pez } from '../types';
 import { cerrarTeclado } from '../utils/cerrarTeclado';
 import { normalizarTexto } from '../utils/normalizarTexto';
 
-// Cómo se dibuja cada elemento de la lista
-const renderPez: ListRenderItem<Pez> = ({ item }) => <PezCard pez={item} />;
-
 // Clave única por elemento: React la usa para no redibujar de más
 const obtenerClave = (pez: Pez): string => pez.id;
 
-// Pantalla principal: encabezado + lista de peces del acuario
-export function HomeScreen(): React.JSX.Element {
+// Pantalla principal (ListaPeces en el Stack): encabezado + lista de peces del acuario
+export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
   // Texto que escribe el usuario en el buscador
   const [busqueda, setBusqueda] = useState('');
   // Filtro por tipo de agua (chips)
@@ -43,6 +41,20 @@ export function HomeScreen(): React.JSX.Element {
   const [refrescando, setRefrescando] = useState(false);
   // Guardamos el temporizador para poder cancelarlo si la pantalla se cierra
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Al tocar «Ver ficha» vamos al detalle y le pasamos los params tipados
+  const verFicha = useCallback(
+    (pez: Pez): void => {
+      navigation.navigate('DetallePez', { pezId: pez.id, nombre: pez.nombre });
+    },
+    [navigation],
+  );
+
+  // Cómo se dibuja cada elemento de la lista
+  const renderPez = useCallback<ListRenderItem<Pez>>(
+    ({ item }) => <PezCard pez={item} onVerFicha={verFicha} />,
+    [verFicha],
+  );
 
   // Pull-to-refresh simulado: espera 1,5 s como si consultara un servidor
   const refrescar = useCallback((): void => {
@@ -96,8 +108,9 @@ export function HomeScreen(): React.JSX.Element {
   }, []);
 
   return (
-    // SafeAreaView evita que el contenido quede bajo la barra de estado / notch
-    <SafeAreaView style={styles.pantalla}>
+    // SafeAreaView evita que el contenido quede bajo la barra de estado / notch.
+    // Solo el borde de arriba: abajo ya lo cubre la barra de pestañas (si no, se duplica el margen).
+    <SafeAreaView style={styles.pantalla} edges={['top', 'left', 'right']}>
       {/* KeyboardAvoidingView sube el contenido para que el teclado no lo tape.
           En iOS usa 'padding'; Android ya ajusta la ventana por sí solo. */}
       <KeyboardAvoidingView
@@ -142,6 +155,7 @@ export function HomeScreen(): React.JSX.Element {
             peces={pecesFiltrados}
             mensajeVacio={mensajeVacio}
             refreshControl={controlRefresco}
+            onVerFicha={verFicha}
           />
         )}
       </KeyboardAvoidingView>
