@@ -111,3 +111,9 @@ export const peces: Pez[] = [
     imagen: require('../../assets/peces/cardenal.png'),
   },
 ];
+
+// Busca un pez por su id (para la pantalla de detalle).
+// Devuelve undefined si el id no existe, así que quien lo use debe contemplar ese caso.
+export function buscarPezPorId(id: string): Pez | undefined {
+  return peces.find((pez) => pez.id === id);
+}
