@@ -1,13 +1,15 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import type { ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BuscadorPeces } from '../components/BuscadorPeces';
 import { ListaVacia } from '../components/ListaVacia';
 import { PezCard } from '../components/PezCard';
 import { SeparadorLista } from '../components/SeparadorLista';
 import { peces } from '../data/peces';
 import { colors } from '../theme/colors';
 import type { Pez } from '../types';
+import { normalizarTexto } from '../utils/normalizarTexto';
 
 // Cómo se dibuja cada elemento de la lista
 const renderPez: ListRenderItem<Pez> = ({ item }) => <PezCard pez={item} />;
@@ -17,6 +19,8 @@ const obtenerClave = (pez: Pez): string => pez.id;
 
 // Pantalla principal: encabezado + lista de peces del acuario
 export function HomeScreen(): React.JSX.Element {
+  // Texto que escribe el usuario en el buscador
+  const [busqueda, setBusqueda] = useState('');
   // true mientras se "recarga" la lista (muestra el círculo de carga)
   const [refrescando, setRefrescando] = useState(false);
   // Guardamos el temporizador para poder cancelarlo si la pantalla se cierra
@@ -29,6 +33,20 @@ export function HomeScreen(): React.JSX.Element {
       setRefrescando(false);
     }, 1500);
   }, []);
+
+  // Filtra por nombre o nombre científico. useMemo evita repetir el cálculo
+  // en cada render: solo se recalcula si cambia la búsqueda.
+  const pecesFiltrados = useMemo(() => {
+    const termino = normalizarTexto(busqueda);
+    if (termino === '') {
+      return peces;
+    }
+    return peces.filter(
+      (pez) =>
+        normalizarTexto(pez.nombre).includes(termino) ||
+        normalizarTexto(pez.nombreCientifico).includes(termino),
+    );
+  }, [busqueda]);
 
   // Al desmontar la pantalla, cancelamos el temporizador pendiente
   useEffect(() => {
@@ -45,16 +63,29 @@ export function HomeScreen(): React.JSX.Element {
       {/* Encabezado con el nombre del dominio */}
       <View style={styles.encabezado}>
         <Text style={styles.titulo}>🐠 Acuario</Text>
-        <Text style={styles.subtitulo}>{peces.length} especies registradas</Text>
+        <Text style={styles.subtitulo}>
+          {pecesFiltrados.length} de {peces.length} especies
+        </Text>
       </View>
+
+      {/* Buscador: filtra la lista mientras se escribe */}
+      <BuscadorPeces valor={busqueda} onCambiar={setBusqueda} />
 
       {/* FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map) */}
       <FlatList
-        data={peces}
+        data={pecesFiltrados}
         renderItem={renderPez}
         keyExtractor={obtenerClave}
         ItemSeparatorComponent={SeparadorLista}
-        ListEmptyComponent={<ListaVacia mensaje="No hay peces en el acuario" />}
+        ListEmptyComponent={
+          <ListaVacia
+            mensaje={
+              busqueda === ''
+                ? 'No hay peces en el acuario'
+                : `Ningún pez coincide con "${busqueda}"`
+            }
+          />
+        }
         contentContainerStyle={styles.lista}
         refreshControl={
           <RefreshControl
