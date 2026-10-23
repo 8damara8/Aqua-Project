@@ -1,0 +1,37 @@
+{
+  "name": "acuario-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "packageManager": "pnpm@10.34.7+sha512.ba98abc585539933375b5971f4bc6d6c73a1b4b7edc4a879e7d102fe5423d1e02309d67c60a11f04955093a96e521ad9c3b138cdd654ca5be563f378b3ae48bd",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": "10.34.7"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "typecheck": "tsc --noEmit",
+    "seguridad": "pnpm audit --audit-level=high"
+  },
+  "dependencies": {
+    "expo": "57.0.4",
+    "expo-status-bar": "57.0.0",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-safe-area-context": "5.7.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.29.7",
+    "@types/react": "19.2.17",
+    "typescript": "6.0.3"
+  },
+  "pnpm": {
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-86w9-cpqp-85rv"
+      ]
+    }
+  }
+}
