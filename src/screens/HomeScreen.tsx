@@ -1,9 +1,19 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import type { ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ListaVacia } from '../components/ListaVacia';
 import { PezCard } from '../components/PezCard';
+import { SeparadorLista } from '../components/SeparadorLista';
 import { peces } from '../data/peces';
 import { colors } from '../theme/colors';
+import type { Pez } from '../types';
+
+// Cómo se dibuja cada elemento de la lista
+const renderPez: ListRenderItem<Pez> = ({ item }) => <PezCard pez={item} />;
+
+// Clave única por elemento: React la usa para no redibujar de más
+const obtenerClave = (pez: Pez): string => pez.id;
 
 // Pantalla principal: encabezado + lista de peces del acuario
 export function HomeScreen(): React.JSX.Element {
@@ -16,12 +26,15 @@ export function HomeScreen(): React.JSX.Element {
         <Text style={styles.subtitulo}>{peces.length} especies registradas</Text>
       </View>
 
-      {/* ScrollView: permite desplazar las tarjetas */}
-      <ScrollView contentContainerStyle={styles.lista}>
-        {peces.map((pez) => (
-          <PezCard key={pez.id} pez={pez} />
-        ))}
-      </ScrollView>
+      {/* FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map) */}
+      <FlatList
+        data={peces}
+        renderItem={renderPez}
+        keyExtractor={obtenerClave}
+        ItemSeparatorComponent={SeparadorLista}
+        ListEmptyComponent={<ListaVacia mensaje="No hay peces en el acuario" />}
+        contentContainerStyle={styles.lista}
+      />
     </SafeAreaView>
   );
 }

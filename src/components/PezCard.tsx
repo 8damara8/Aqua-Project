@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borde,
     overflow: 'hidden',
-    marginBottom: 14,
   },
   imagen: {
     width: 120,
