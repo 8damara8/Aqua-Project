@@ -1,6 +1,8 @@
 import React from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { radius, spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 import type { Pez } from '../types';
 
 interface PezCardProps {
@@ -53,11 +55,10 @@ const styles = StyleSheet.create({
   tarjeta: {
     flexDirection: 'row', // imagen a la izquierda, info a la derecha
     backgroundColor: colors.tarjeta,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.borde,
     overflow: 'hidden',
-    marginBottom: 14,
   },
   imagen: {
     width: 120,
@@ -65,29 +66,27 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1, // usa el espacio que sobra
-    padding: 14,
-    gap: 6,
+    padding: spacing.lg,
+    gap: spacing.sm,
   },
   nombre: {
-    fontSize: 18,
-    fontWeight: '700',
+    ...typography.nombre,
     color: colors.textoPrincipal,
   },
   cientifico: {
-    fontSize: 12,
-    fontStyle: 'italic',
+    ...typography.cientifico,
     color: colors.textoSecundario,
   },
   etiquetas: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 4,
+    gap: spacing.sm,
+    marginTop: spacing.xs,
   },
   etiqueta: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
   },
   aguaDulce: {
     backgroundColor: colors.dulce,
@@ -96,25 +95,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.salada,
   },
   etiquetaTexto: {
-    fontSize: 12,
-    fontWeight: '600',
+    ...typography.etiqueta,
     color: colors.botonTexto,
   },
   etiquetaBorde: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
     borderWidth: 1,
     borderColor: colors.borde,
   },
   etiquetaBordeTexto: {
-    fontSize: 12,
+    ...typography.etiquetaSecundaria,
     color: colors.textoSecundario,
   },
   boton: {
-    marginTop: 8,
-    paddingVertical: 8,
-    borderRadius: 10,
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
     alignItems: 'center',
     backgroundColor: colors.boton,
   },
@@ -122,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.botonPresionado,
   },
   botonTexto: {
-    fontWeight: '700',
+    ...typography.boton,
     color: colors.botonTexto,
   },
 });

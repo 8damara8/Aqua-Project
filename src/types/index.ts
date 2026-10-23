@@ -13,3 +13,16 @@ export interface Pez {
   temperaturaC: string;
   imagen: ImageSourcePropType;
 }
+
+// Forma de mostrar el catálogo: lista simple o agrupada por tipo de agua
+export type ModoVista = 'lista' | 'secciones';
+
+// Un grupo de la SectionList (cada sección tiene su título y sus peces)
+export interface SeccionPeces {
+  tipoAgua: TipoAgua;
+  titulo: string;
+  data: Pez[];
+}
+
+// Filtro por tipo de agua: todos o solo uno de los dos tipos
+export type FiltroAgua = 'todos' | TipoAgua;
