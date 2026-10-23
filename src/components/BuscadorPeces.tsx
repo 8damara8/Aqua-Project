@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors } from '../theme/colors';
 
 interface BuscadorPecesProps {
@@ -21,6 +21,7 @@ export function BuscadorPeces({ valor, onCambiar }: BuscadorPecesProps): React.J
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="search"
+        onSubmitEditing={Keyboard.dismiss} // la tecla «buscar» cierra el teclado
         selectionColor={colors.acento}
       />
       {/* Botón para borrar: solo aparece si hay texto */}

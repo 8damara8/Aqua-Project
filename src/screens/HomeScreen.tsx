@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import type { ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BuscadorPeces } from '../components/BuscadorPeces';
@@ -16,6 +25,11 @@ const renderPez: ListRenderItem<Pez> = ({ item }) => <PezCard pez={item} />;
 
 // Clave única por elemento: React la usa para no redibujar de más
 const obtenerClave = (pez: Pez): string => pez.id;
+
+// Cierra el teclado (se usa al empezar a desplazar la lista)
+const cerrarTeclado = (): void => {
+  Keyboard.dismiss();
+};
 
 // Pantalla principal: encabezado + lista de peces del acuario
 export function HomeScreen(): React.JSX.Element {
@@ -60,43 +74,54 @@ export function HomeScreen(): React.JSX.Element {
   return (
     // SafeAreaView evita que el contenido quede bajo la barra de estado / notch
     <SafeAreaView style={styles.pantalla}>
-      {/* Encabezado con el nombre del dominio */}
-      <View style={styles.encabezado}>
-        <Text style={styles.titulo}>🐠 Acuario</Text>
-        <Text style={styles.subtitulo}>
-          {pecesFiltrados.length} de {peces.length} especies
-        </Text>
-      </View>
+      {/* KeyboardAvoidingView sube el contenido para que el teclado no lo tape.
+          En iOS usa 'padding'; Android ya ajusta la ventana por sí solo. */}
+      <KeyboardAvoidingView
+        style={styles.pantalla}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* Encabezado con el nombre del dominio */}
+        <View style={styles.encabezado}>
+          <Text style={styles.titulo}>🐠 Acuario</Text>
+          <Text style={styles.subtitulo}>
+            {pecesFiltrados.length} de {peces.length} especies
+          </Text>
+        </View>
 
-      {/* Buscador: filtra la lista mientras se escribe */}
-      <BuscadorPeces valor={busqueda} onCambiar={setBusqueda} />
+        {/* Buscador: filtra la lista mientras se escribe */}
+        <BuscadorPeces valor={busqueda} onCambiar={setBusqueda} />
 
-      {/* FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map) */}
-      <FlatList
-        data={pecesFiltrados}
-        renderItem={renderPez}
-        keyExtractor={obtenerClave}
-        ItemSeparatorComponent={SeparadorLista}
-        ListEmptyComponent={
-          <ListaVacia
-            mensaje={
-              busqueda === ''
-                ? 'No hay peces en el acuario'
-                : `Ningún pez coincide con "${busqueda}"`
-            }
-          />
-        }
-        contentContainerStyle={styles.lista}
-        refreshControl={
-          <RefreshControl
-            refreshing={refrescando}
-            onRefresh={refrescar}
-            tintColor={colors.acento} // color del círculo en iOS
-            colors={[colors.acento]} // color del círculo en Android
-            progressBackgroundColor={colors.tarjeta}
-          />
-        }
-      />
+        {/* FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map) */}
+        <FlatList
+          data={pecesFiltrados}
+          renderItem={renderPez}
+          keyExtractor={obtenerClave}
+          ItemSeparatorComponent={SeparadorLista}
+          ListEmptyComponent={
+            <ListaVacia
+              mensaje={
+                busqueda === ''
+                  ? 'No hay peces en el acuario'
+                  : `Ningún pez coincide con "${busqueda}"`
+              }
+            />
+          }
+          contentContainerStyle={styles.lista}
+          // 'handled': tocar un botón de la tarjeta funciona sin cerrar antes el teclado
+          keyboardShouldPersistTaps="handled"
+          // Al empezar a desplazar la lista, se cierra el teclado
+          onScrollBeginDrag={cerrarTeclado}
+          refreshControl={
+            <RefreshControl
+              refreshing={refrescando}
+              onRefresh={refrescar}
+              tintColor={colors.acento} // color del círculo en iOS
+              colors={[colors.acento]} // color del círculo en Android
+              progressBackgroundColor={colors.tarjeta}
+            />
+          }
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
