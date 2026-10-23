@@ -23,3 +23,6 @@ export interface SeccionPeces {
   titulo: string;
   data: Pez[];
 }
+
+// Filtro por tipo de agua: todos o solo uno de los dos tipos
+export type FiltroAgua = 'todos' | TipoAgua;

@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 import type { TipoAgua } from '../types';
 
 interface EncabezadoSeccionProps {
@@ -31,8 +33,8 @@ const styles = StyleSheet.create({
   contenedor: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingVertical: 10,
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
     // Fondo igual al de la pantalla: así, al quedar fijo arriba (sticky),
     // las tarjetas no se ven por detrás del encabezado
     backgroundColor: colors.fondo,
@@ -49,12 +51,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.salada,
   },
   titulo: {
-    fontSize: 16,
-    fontWeight: '700',
+    ...typography.tituloSeccion,
     color: colors.textoPrincipal,
   },
   cantidad: {
-    fontSize: 14,
+    ...typography.subtitulo,
     color: colors.textoSecundario,
   },
 });

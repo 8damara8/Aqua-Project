@@ -1,6 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { radius, spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 import type { ModoVista } from '../types';
 
 interface SelectorVistaProps {
@@ -38,26 +40,25 @@ export function SelectorVista({ valor, onCambiar }: SelectorVistaProps): React.J
 const styles = StyleSheet.create({
   contenedor: {
     flexDirection: 'row',
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 4,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.xs,
     backgroundColor: colors.tarjeta,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borde,
   },
   opcion: {
     flex: 1, // cada opción ocupa la mitad
-    paddingVertical: 8,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
-    borderRadius: 9,
+    borderRadius: radius.sm,
   },
   opcionActiva: {
     backgroundColor: colors.acento,
   },
   texto: {
-    fontSize: 13,
-    fontWeight: '600',
+    ...typography.control,
     color: colors.textoSecundario,
   },
   textoActivo: {

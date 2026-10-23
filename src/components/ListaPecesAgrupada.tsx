@@ -5,6 +5,7 @@ import type {
   SectionListData,
   SectionListRenderItem,
 } from 'react-native';
+import { spacing } from '../theme/spacing';
 import { cerrarTeclado } from '../utils/cerrarTeclado';
 import { EncabezadoSeccion } from './EncabezadoSeccion';
 import { ListaVacia } from './ListaVacia';
@@ -80,7 +81,7 @@ export function ListaPecesAgrupada({
 
 const styles = StyleSheet.create({
   lista: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
 });

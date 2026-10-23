@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 
 interface ListaVaciaProps {
   mensaje: string;
@@ -19,14 +21,14 @@ export function ListaVacia({ mensaje }: ListaVaciaProps): React.JSX.Element {
 const styles = StyleSheet.create({
   contenedor: {
     alignItems: 'center',
-    paddingVertical: 48,
-    gap: 8,
+    paddingVertical: spacing.xxxl,
+    gap: spacing.sm,
   },
   emoji: {
-    fontSize: 40,
+    ...typography.emojiGrande,
   },
   texto: {
-    fontSize: 15,
+    ...typography.cuerpo,
     color: colors.textoSecundario,
     textAlign: 'center',
   },

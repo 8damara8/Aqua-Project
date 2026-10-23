@@ -1,6 +1,8 @@
 import React from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors } from '../theme/colors';
+import { radius, spacing } from '../theme/spacing';
+import { typography } from '../theme/typography';
 
 interface BuscadorPecesProps {
   valor: string;
@@ -42,26 +44,26 @@ const styles = StyleSheet.create({
   contenedor: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 12,
-    paddingHorizontal: 14,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
     backgroundColor: colors.tarjeta,
-    borderRadius: 12,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borde,
-    gap: 8,
+    gap: spacing.sm,
   },
   icono: {
-    fontSize: 16,
+    ...typography.icono,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 15,
+    paddingVertical: spacing.md,
+    ...typography.cuerpo,
     color: colors.textoPrincipal,
   },
   borrar: {
-    fontSize: 16,
+    ...typography.icono,
     color: colors.textoSecundario,
   },
 });

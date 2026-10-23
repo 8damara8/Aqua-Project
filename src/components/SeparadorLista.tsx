@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { spacing } from '../theme/spacing';
 
 // Espacio vertical entre tarjetas (lo usa ItemSeparatorComponent de FlatList)
 export function SeparadorLista(): React.JSX.Element {
@@ -8,6 +9,6 @@ export function SeparadorLista(): React.JSX.Element {
 
 const styles = StyleSheet.create({
   separador: {
-    height: 14,
+    height: spacing.md,
   },
 });
