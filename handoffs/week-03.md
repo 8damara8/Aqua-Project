@@ -99,4 +99,24 @@ Cuando el usuario confirme que la semana funciona, dile que abra una **sesión n
 > «Lee `handoffs/week-04.md` en la rama `week-04` del repo https://github.com/8damara8/Juan-Felipe-Maradey-Navarro y ejecútalo.»
 
 ## 9. Notas para la siguiente semana
-_(la persona que cierre esta semana completa esto: qué se omitió, qué se adaptó, qué debe saber la semana siguiente)_
+**Qué se hizo:** los 6 pasos de la sección 3, un commit por paso. Estructura final: `App.tsx` (`SafeAreaProvider` → `NavigationContainer` con tema) → `AppNavigator` (Bottom Tabs: `Peces`, `MiTanque`) → `PecesStack` (`ListaPeces` = `HomeScreen`, `DetallePez` = `DetallePezScreen`). Archivos nuevos: `src/navigation/{types,PecesStack,AppNavigator,temaNavegacion}.ts(x)`, `src/screens/{DetallePezScreen,MiTanqueScreen}.tsx`, `src/components/DatoFicha.tsx`, y `buscarPezPorId` en `src/data/peces.ts`.
+
+**Qué se adaptó / decisiones:**
+- **Cascada pendiente de la semana 2:** `week-03` había nacido del commit del handoff de la semana 2, sin el código de la semana 2. Se hizo `git merge origin/week-02` (sin conflictos) antes de empezar.
+- **Versiones:** `@react-navigation/native` quedó en **7.5.1** (no 7.3.8 como decía la sección 4): `@react-navigation/elements@2.9.45` (dependencia interna de tabs/stack) exige `native ^7.5.1`, y con 7.3.8 había un peer sin cumplir. El resto: `native-stack 7.17.10`, `bottom-tabs 7.18.8` (mismo release que native-stack 7.17.10), `react-native-screens 4.25.2`, `@expo/vector-icons 15.1.1`. Todas exactas.
+- `pnpm expo install --check` no se pudo ejecutar (el entorno no alcanza la API de Expo). Se comprobó a mano contra `node_modules/expo/bundledNativeModules.json`: `react-native-screens 4.25.2` coincide; `@expo/vector-icons` pide `^15.0.2` (15.1.1 cumple). **Si puedes, corre `pnpm expo install --check` en tu máquina.**
+- **Orden de los pasos 3 y 4 invertido** (se creó `DetallePezScreen` antes que `PecesStack`) para que cada commit compile.
+- **Params de `DetallePez`:** `{ pezId, nombre }`. `pezId` es la fuente de verdad (el detalle busca el pez con `buscarPezPorId`); `nombre` solo sirve para el título del header. Si el id no existe se muestra «No encontramos este pez».
+- **`PezCard` ya no abre un `Alert`:** recibe la prop `onVerFicha(pez)`. `HomeScreen` la implementa con `navigation.navigate(...)` y se la pasa también a `ListaPecesAgrupada`.
+- **Headers:** `ListaPeces` oculta el header del Stack (conserva su encabezado «🐠 Acuario» con el contador); `DetallePez` usa el header del Stack con el tema; la pestaña `Peces` oculta el header de tabs para no duplicarlo; `MiTanque` usa el header de tabs.
+- **Safe area:** `HomeScreen` usa `SafeAreaView` solo con `edges={['top','left','right']}` (abajo ya lo cubre la barra de pestañas). Detalle y Mi Tanque no necesitan `SafeAreaView`.
+- **Drawer Navigator: OMITIDO** (requiere Reanimated + Gesture Handler, semana 10), como indica la sección 5.
+- No se usó `expo-router`; `main` sigue siendo `index.ts`.
+
+**Lo que debe saber la semana 4:**
+- `MiTanqueScreen` es un placeholder estático; la semana 4 debe llenarla con el estado global (Zustand). El botón «Agregar a mi tanque» va en `DetallePezScreen` (después de la `ficha`) y el favorito en `PezCard` (hay que añadir otra prop como `onVerFicha`, o leer el store).
+- Se puede mostrar un contador (badge) en la pestaña `MiTanque` con `tabBarBadge` en `AppNavigator` cuando exista el store.
+- `HomeScreen` sigue concentrando el estado de búsqueda/filtros/vista; la navegación mantiene la pantalla montada al ir al detalle y volver, así que el estado se conserva.
+- Los tipos de las pantallas están en `src/navigation/types.ts` (`ListaPecesProps`, `DetallePezProps`). No se declaró `ReactNavigation.RootParamList` global; si en alguna semana se usa `useNavigation()` sin genérico, hay que declararlo.
+
+**Verificación hecha:** `pnpm install --frozen-lockfile` OK; `pnpm typecheck` 0 errores; `pnpm seguridad` solo la excepción conocida (`GHSA-86w9-cpqp-85rv`); `CI=1 npx expo export --platform android` compila (`dist` borrado). **Pendiente:** confirmación visual del usuario en Expo Go (SDK 57) y `git push` + cascada.

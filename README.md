@@ -22,12 +22,15 @@ pnpm seguridad    # auditoría de dependencias
 - **Semana 2:** catálogo de 12 peces con `FlatList` y `SectionList` (agrupado por tipo de agua),
   buscador en tiempo real (sin tildes ni mayúsculas), chips de filtro, pull-to-refresh,
   manejo del teclado y tema reutilizable (`colors`, `spacing`, `typography`).
+- **Semana 3:** React Navigation 7. Barra de pestañas (**Peces** · **Mi Tanque**) con íconos, y un
+  Stack anidado en «Peces» (Lista → Detalle del pez) con params tipados y header con el tema.
 
 ## Estructura de `src/`
 ```
 components/   un componente por archivo (PezCard, BuscadorPeces, ChipsFiltro, ...)
 data/         datos de ejemplo (peces.ts)
-screens/      pantallas (HomeScreen)
+navigation/   AppNavigator (tabs), PecesStack, tipos de params y tema de navegación
+screens/      pantallas (HomeScreen, DetallePezScreen, MiTanqueScreen)
 theme/        colors.ts, spacing.ts, typography.ts
 types/        tipos de TypeScript (Pez, TipoAgua, ...)
 utils/        funciones pequeñas (normalizarTexto, cerrarTeclado)
