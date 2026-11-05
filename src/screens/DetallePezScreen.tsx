@@ -1,5 +1,7 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BotonFavorito } from '../components/BotonFavorito';
+import { BotonTanque } from '../components/BotonTanque';
 import { DatoFicha } from '../components/DatoFicha';
 import { ListaVacia } from '../components/ListaVacia';
 import { buscarPezPorId } from '../data/peces';
@@ -34,7 +36,11 @@ export function DetallePezScreen({ route }: DetallePezProps): React.JSX.Element 
       <Image source={pez.imagen} style={styles.imagen} resizeMode="cover" />
 
       <View style={styles.cabecera}>
-        <Text style={styles.nombre}>{pez.nombre}</Text>
+        {/* Fila: nombre a la izquierda y corazón de favorito a la derecha */}
+        <View style={styles.filaNombre}>
+          <Text style={styles.nombre}>{pez.nombre}</Text>
+          <BotonFavorito pezId={pez.id} />
+        </View>
         <Text style={styles.cientifico}>{pez.nombreCientifico}</Text>
       </View>
 
@@ -46,6 +52,9 @@ export function DetallePezScreen({ route }: DetallePezProps): React.JSX.Element 
         <View style={styles.divisor} />
         <DatoFicha etiqueta="Temperatura ideal" valor={pez.temperaturaC} />
       </View>
+
+      {/* Agrega o quita este pez de «Mi Tanque» (estado global compartido) */}
+      <BotonTanque pezId={pez.id} />
     </ScrollView>
   );
 }
@@ -67,7 +76,14 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     gap: spacing.xs,
   },
+  filaNombre: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
   nombre: {
+    flex: 1,
     ...typography.titulo,
     color: colors.textoPrincipal,
   },
