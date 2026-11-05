@@ -2,6 +2,7 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MiTanqueScreen } from '../screens/MiTanqueScreen';
+import { useAcuarioStore } from '../store';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { PecesStack } from './PecesStack';
@@ -11,6 +12,10 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 // Navegador principal: barra de pestañas inferior (Peces · Mi Tanque)
 export function AppNavigator(): React.JSX.Element {
+  // Cantidad de peces en el tanque, leída del store con un selector que devuelve un número.
+  // Si cambia (agregar/quitar en cualquier pantalla), el badge se actualiza al instante.
+  const cantidadEnTanque = useAcuarioStore((estado) => estado.idsTanque.length);
+
   return (
     <Tab.Navigator
       initialRouteName="Peces"
@@ -42,6 +47,9 @@ export function AppNavigator(): React.JSX.Element {
         component={MiTanqueScreen}
         options={{
           title: 'Mi Tanque',
+          // `undefined` oculta el badge; con 1 o más peces muestra el número
+          tabBarBadge: cantidadEnTanque > 0 ? cantidadEnTanque : undefined,
+          tabBarBadgeStyle: { backgroundColor: colors.acento, color: colors.botonTexto },
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'water' : 'water-outline'} size={size} color={color} />
           ),
