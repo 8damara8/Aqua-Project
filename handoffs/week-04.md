@@ -97,4 +97,24 @@ Cuando el usuario confirme que la semana funciona, dile que abra una **sesión n
 > «Lee `handoffs/week-05.md` en la rama `week-05` del repo https://github.com/8damara8/Juan-Felipe-Maradey-Navarro y ejecútalo.»
 
 ## 9. Notas para la siguiente semana
-_(la persona que cierre esta semana completa esto: qué se omitió, qué se adaptó, qué debe saber la semana siguiente)_
+**Qué se hizo:** Zustand 5.0.14 con **un solo store** (`useAcuarioStore`, `src/store/index.ts`) hecho con slices: `tanqueSlice` (`idsTanque`, `agregarPez`, `quitarPez`, `vaciarTanque`) y `favoritosSlice` (`idsFavoritos`, `alternarFavorito`), más el dato volátil `hidratado`. Tipos en `src/store/types.ts`. `persist` con `createJSONStorage(() => AsyncStorage)`, `partialize` (solo los dos arrays de ids) y `onRehydrateStorage`. Componentes nuevos: `BotonFavorito`, `BotonTanque`, `PezFila`. `MiTanqueScreen` ya es real (SectionList «En mi tanque» + «Mis favoritos», botón Vaciar con confirmación, indicador de carga hasta hidratar). Badge en la pestaña `MiTanque` con `tabBarBadge`.
+
+**Qué se adaptó / decisiones:**
+- **Se guardan ids, no peces:** facilita persistir; el pez se resuelve con `buscarPezPorId`. Si un id guardado ya no existe en los datos, se ignora.
+- **`@react-native-async-storage/async-storage` quedó en 2.2.0**, no en la última de npm (3.1.1): 2.2.0 es la que trae Expo Go SDK 57 (`node_modules/expo/bundledNativeModules.json`). **No subirla** sin subir el SDK.
+- **`terminarHidratacion()` es una función aparte con tipo de retorno `void`** para evitar un error de TypeScript por referencia circular (el store se referenciaría a sí mismo dentro de `onRehydrateStorage`). No inlinearla.
+- **`hidratado` NO se persiste** (partialize lo excluye) y se pone en `true` en `onRehydrateStorage` incluso si hay error de lectura, para que `MiTanque` no quede cargando para siempre.
+- **`useShallow`** se usa una vez (en `MiTanqueScreen`) para seleccionar varias acciones en un objeto sin redibujos de más. En el resto, un selector por dato.
+- **Navegación anidada:** desde `MiTanque` se abre la ficha con `navigation.navigate('Peces', { screen: 'DetallePez', params })` (tipado gracias a `NavigatorScreenParams` de la semana 3). Se agregó `MiTanqueProps` en `src/navigation/types.ts`.
+- **`ReactNavigation.RootParamList` global declarada** en `src/navigation/types.ts` (hueco de la semana 3): ahora `useNavigation()` queda tipado sin genéricos.
+- Colores nuevos en el tema: `favorito` y `peligro`.
+- **Seguridad:** al ejecutar `pnpm seguridad` aparecieron 16 avisos nuevos (ya existían en `week-03`; son avisos publicados después). Todos son del CLI de desarrollo de Expo, ninguno entra al bundle. Se corrigió `node-forge` con `pnpm.overrides` → **1.4.2**. Quedan 4 excepciones aceptadas en `pnpm.auditConfig.ignoreGhsas` (`zod`, `glob`, `minimatch`, `deepmerge`; arreglarlas exige salto de versión mayor dentro de `@expo/cli` o no hay parche). **Reevaluar al actualizar Expo.**
+
+**Lo que debe saber la semana 5:**
+- **Zustand = estado de CLIENTE** (tanque, favoritos). El catálogo de peces del servidor irá en **TanStack Query**; no meter la lista de peces en Zustand.
+- `src/data/peces.ts` y `buscarPezPorId` son datos locales: al llegar la API, `DetallePezScreen` y `MiTanqueScreen` deberán resolver el pez desde la caché de la query (el store sigue guardando solo ids, así que no cambia).
+- Si cambia la forma de lo persistido, **subir `version` en `persist` y escribir `migrate`**.
+- Axios: usar la versión parcheada más reciente (verificar con `pnpm audit`, **no** la 1.18.1).
+- `HomeScreen` no cambió en esta semana; `PezCard` ahora incluye `BotonFavorito` (lee el store por sí mismo).
+
+**Verificación hecha:** `pnpm install --frozen-lockfile` OK; `pnpm typecheck` 0 errores; `pnpm seguridad` OK (con las excepciones documentadas); `CI=1 npx expo export --platform android` compila (`dist` borrado); lógica del store probada con un AsyncStorage simulado (agregar sin duplicar, quitar, favoritos, persistencia, `partialize`, rehidratación). **Pendiente:** confirmación visual del usuario en Expo Go (SDK 57) y `git push` + cascada.
