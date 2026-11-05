@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { BotonFavorito } from './BotonFavorito';
 import { colors } from '../theme/colors';
 import { radius, spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -28,7 +29,11 @@ export function PezCard({ pez, onVerFicha }: PezCardProps): React.JSX.Element {
 
       {/* Información: nombre (grande) y nombre científico (pequeño) */}
       <View style={styles.info}>
-        <Text style={styles.nombre}>{pez.nombre}</Text>
+        {/* Fila: nombre a la izquierda y corazón de favorito a la derecha */}
+        <View style={styles.filaNombre}>
+          <Text style={styles.nombre}>{pez.nombre}</Text>
+          <BotonFavorito pezId={pez.id} />
+        </View>
         <Text style={styles.cientifico}>{pez.nombreCientifico}</Text>
 
         {/* Etiquetas en fila (flexDirection: row) */}
@@ -71,7 +76,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.sm,
   },
+  filaNombre: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
   nombre: {
+    flex: 1, // el nombre usa el espacio libre y empuja el corazón a la derecha
     ...typography.nombre,
     color: colors.textoPrincipal,
   },
