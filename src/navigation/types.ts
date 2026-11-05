@@ -20,3 +20,11 @@ export type TabParamList = {
 // Props que recibe cada pantalla del Stack (incluyen `navigation` y `route` ya tipados)
 export type ListaPecesProps = NativeStackScreenProps<PecesStackParamList, 'ListaPeces'>;
 export type DetallePezProps = NativeStackScreenProps<PecesStackParamList, 'DetallePez'>;
+
+// Declaración global: le dice a React Navigation cuáles son las rutas raíz de la app.
+// Gracias a esto, `useNavigation()` y `navigate('...')` quedan tipados sin pasar genéricos.
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends TabParamList {}
+  }
+}
