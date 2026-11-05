@@ -11,4 +11,6 @@ export const colors = {
   boton: '#2bb3d9',
   botonPresionado: '#1a8aa8',
   botonTexto: '#04141d',
+  favorito: '#ff5d7a', // corazón de favoritos
+  peligro: '#ff6b6b', // acciones que borran (quitar, vaciar)
 } as const;
