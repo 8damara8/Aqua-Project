@@ -33,7 +33,7 @@ pnpm seguridad    # auditoría de dependencias
 ```
 components/   un componente por archivo (PezCard, BuscadorPeces, ChipsFiltro, ...)
 data/         datos de ejemplo (peces.ts)
-navigation/   AppNavigator (tabs + badge), PecesStack, tipos de params y tema de navegación
+navigation/   AppNavigator (tabs + badge), PecesStack, MiTanqueStack, tipos de params y tema de navegación
 screens/      pantallas (HomeScreen, DetallePezScreen, MiTanqueScreen)
 store/        useAcuarioStore (index.ts), slices (tanque, favoritos) y sus tipos
 theme/        colors.ts, spacing.ts, typography.ts

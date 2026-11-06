@@ -3,7 +3,7 @@ import { Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-nat
 import type { SectionListRenderItem } from 'react-native';
 import { PezFila } from '../components/PezFila';
 import { buscarPezPorId } from '../data/peces';
-import type { MiTanqueProps } from '../navigation/types';
+import type { ListaTanqueProps } from '../navigation/types';
 import { useAcuarioStore } from '../store';
 import { colors } from '../theme/colors';
 import { radius, spacing } from '../theme/spacing';
@@ -34,7 +34,7 @@ const obtenerClave = (pez: Pez): string => pez.id;
 
 // Pestaña «Mi Tanque»: muestra lo que hay en el store global (tanque y favoritos).
 // Cuando se monta, App.tsx ya esperó a que el store leyera lo guardado en el celular.
-export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element {
+export function MiTanqueScreen({ navigation }: ListaTanqueProps): React.JSX.Element {
   // Selectores específicos: cada línea pide SOLO el dato que necesita esta pantalla
   const idsTanque = useAcuarioStore((estado) => estado.idsTanque);
   const idsFavoritos = useAcuarioStore((estado) => estado.idsFavoritos);
@@ -63,13 +63,10 @@ export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element
     [idsTanque, idsFavoritos],
   );
 
-  // Desde esta pestaña abrimos la ficha, que vive en el Stack de la pestaña «Peces»
+  // Abrimos la ficha dentro del Stack de esta misma pestaña: «atrás» vuelve a Mi Tanque
   const abrirFicha = useCallback(
     (pez: Pez): void => {
-      navigation.navigate('Peces', {
-        screen: 'DetallePez',
-        params: { pezId: pez.id, nombre: pez.nombre },
-      });
+      navigation.navigate('DetallePez', { pezId: pez.id, nombre: pez.nombre });
     },
     [navigation],
   );

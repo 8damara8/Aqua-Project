@@ -1,10 +1,9 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MiTanqueScreen } from '../screens/MiTanqueScreen';
 import { useAcuarioStore } from '../store';
 import { colors } from '../theme/colors';
-import { typography } from '../theme/typography';
+import { MiTanqueStack } from './MiTanqueStack';
 import { PecesStack } from './PecesStack';
 import type { TabParamList } from './types';
 
@@ -24,18 +23,15 @@ export function AppNavigator(): React.JSX.Element {
         tabBarActiveTintColor: colors.acento,
         tabBarInactiveTintColor: colors.textoSecundario,
         tabBarStyle: { backgroundColor: colors.tarjeta, borderTopColor: colors.borde },
-        // Header (lo usa «Mi Tanque»; «Peces» lo oculta porque su Stack trae el suyo)
-        headerStyle: { backgroundColor: colors.tarjeta },
-        headerTintColor: colors.textoPrincipal,
-        headerTitleStyle: { ...typography.nombre },
-        headerShadowVisible: false,
+        // Ninguna pestaña dibuja header propio: cada una tiene un Stack que ya trae el suyo.
+        // Si no, quedarían dos headers apilados.
+        headerShown: false,
       }}
     >
       <Tab.Screen
         name="Peces"
         component={PecesStack}
         options={{
-          headerShown: false, // evita dos headers apilados (el del Stack ya existe)
           // Ícono relleno si la pestaña está activa, de contorno si no
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'fish' : 'fish-outline'} size={size} color={color} />
@@ -44,7 +40,7 @@ export function AppNavigator(): React.JSX.Element {
       />
       <Tab.Screen
         name="MiTanque"
-        component={MiTanqueScreen}
+        component={MiTanqueStack}
         options={{
           title: 'Mi Tanque',
           // `undefined` oculta el badge; con 1 o más peces muestra el número
