@@ -49,8 +49,8 @@ const agregarPez = useAcuarioStore((estado) => estado.agregarPez);
 ```
 - Se guardan solo **ids** (`idsTanque`, `idsFavoritos`); el pez completo se busca con `buscarPezPorId`.
 - `partialize` deja fuera `hidratado`, un dato volátil que indica si ya se leyó lo guardado.
-- `onRehydrateStorage` marca `hidratado = true` al terminar de leer, y «Mi Tanque» muestra un
-  indicador de carga hasta entonces.
+- `onRehydrateStorage` marca `hidratado = true` al terminar de leer, y `App.tsx` no monta el
+  navegador (muestra `PantallaCarga`) hasta entonces, para que ningún toque se pierda en el arranque.
 
 ## Seguridad
 - Versiones exactas (sin `^` ni `~`) y `pnpm-lock.yaml` versionado.

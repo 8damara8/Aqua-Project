@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { ActivityIndicator, Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import type { SectionListRenderItem } from 'react-native';
 import { PezFila } from '../components/PezFila';
 import { buscarPezPorId } from '../data/peces';
@@ -32,12 +32,12 @@ function resolverPeces(ids: string[]): Pez[] {
 
 const obtenerClave = (pez: Pez): string => pez.id;
 
-// Pestaña «Mi Tanque»: muestra lo que hay en el store global (tanque y favoritos)
+// Pestaña «Mi Tanque»: muestra lo que hay en el store global (tanque y favoritos).
+// Cuando se monta, App.tsx ya esperó a que el store leyera lo guardado en el celular.
 export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element {
   // Selectores específicos: cada línea pide SOLO el dato que necesita esta pantalla
   const idsTanque = useAcuarioStore((estado) => estado.idsTanque);
   const idsFavoritos = useAcuarioStore((estado) => estado.idsFavoritos);
-  const hidratado = useAcuarioStore((estado) => estado.hidratado);
   // Las acciones también se piden con un selector cada una. Las funciones del store no
   // cambian de referencia, así que no provocan redibujos (por eso no hace falta useShallow)
   const quitarPez = useAcuarioStore((estado) => estado.quitarPez);
@@ -92,15 +92,6 @@ export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element
       onAbrir={abrirFicha}
     />
   );
-
-  // Mientras se lee lo guardado en el celular, mostramos un indicador de carga
-  if (!hidratado) {
-    return (
-      <View style={styles.centrado}>
-        <ActivityIndicator size="large" color={colors.acento} />
-      </View>
-    );
-  }
 
   // Sin peces ni favoritos: mensaje de bienvenida
   if (idsTanque.length === 0 && idsFavoritos.length === 0) {
