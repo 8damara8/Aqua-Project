@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { ActivityIndicator, Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import type { SectionListRenderItem } from 'react-native';
-import { useShallow } from 'zustand/react/shallow';
 import { PezFila } from '../components/PezFila';
 import { buscarPezPorId } from '../data/peces';
 import type { MiTanqueProps } from '../navigation/types';
@@ -39,15 +38,11 @@ export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element
   const idsTanque = useAcuarioStore((estado) => estado.idsTanque);
   const idsFavoritos = useAcuarioStore((estado) => estado.idsFavoritos);
   const hidratado = useAcuarioStore((estado) => estado.hidratado);
-  // Varias acciones juntas en un objeto: useShallow compara sus valores uno a uno,
-  // así no se redibuja la pantalla por crear un objeto nuevo en cada render
-  const { quitarPez, alternarFavorito, vaciarTanque } = useAcuarioStore(
-    useShallow((estado) => ({
-      quitarPez: estado.quitarPez,
-      alternarFavorito: estado.alternarFavorito,
-      vaciarTanque: estado.vaciarTanque,
-    })),
-  );
+  // Las acciones también se piden con un selector cada una. Las funciones del store no
+  // cambian de referencia, así que no provocan redibujos (por eso no hace falta useShallow)
+  const quitarPez = useAcuarioStore((estado) => estado.quitarPez);
+  const alternarFavorito = useAcuarioStore((estado) => estado.alternarFavorito);
+  const vaciarTanque = useAcuarioStore((estado) => estado.vaciarTanque);
 
   // Las secciones se recalculan solo si cambian los ids guardados
   const secciones = useMemo<SeccionMiTanque[]>(

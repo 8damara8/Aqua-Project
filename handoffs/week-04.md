@@ -104,7 +104,7 @@ Cuando el usuario confirme que la semana funciona, dile que abra una **sesión n
 - **`@react-native-async-storage/async-storage` quedó en 2.2.0**, no en la última de npm (3.1.1): 2.2.0 es la que trae Expo Go SDK 57 (`node_modules/expo/bundledNativeModules.json`). **No subirla** sin subir el SDK.
 - **`terminarHidratacion()` es una función aparte con tipo de retorno `void`** para evitar un error de TypeScript por referencia circular (el store se referenciaría a sí mismo dentro de `onRehydrateStorage`). No inlinearla.
 - **`hidratado` NO se persiste** (partialize lo excluye) y se pone en `true` en `onRehydrateStorage` incluso si hay error de lectura, para que `MiTanque` no quede cargando para siempre.
-- **`useShallow`** se usa una vez (en `MiTanqueScreen`) para seleccionar varias acciones en un objeto sin redibujos de más. En el resto, un selector por dato.
+- **Un selector por dato, siempre** (también para las acciones en `MiTanqueScreen`): las acciones del store no cambian de referencia, así que no hace falta `useShallow`.
 - **Navegación anidada:** desde `MiTanque` se abre la ficha con `navigation.navigate('Peces', { screen: 'DetallePez', params })` (tipado gracias a `NavigatorScreenParams` de la semana 3). Se agregó `MiTanqueProps` en `src/navigation/types.ts`.
 - **`ReactNavigation.RootParamList` global declarada** en `src/navigation/types.ts` (hueco de la semana 3): ahora `useNavigation()` queda tipado sin genéricos.
 - Colores nuevos en el tema: `favorito` y `peligro`.
