@@ -7,13 +7,20 @@ import type { Pez } from '../types';
 
 interface PezFilaProps {
   pez: Pez;
-  etiquetaAccion: string; // texto del botón de la derecha (ej.: «Quitar»)
+  etiquetaAccion: string; // texto visible del botón de la derecha (ej.: «Quitar»)
+  descripcionAccion: string; // lo que lee el lector de pantalla (ej.: «Quitar de favoritos»)
   onAccion: (pezId: string) => void; // qué hacer al tocar ese botón
   onAbrir: (pez: Pez) => void; // qué hacer al tocar la fila (abrir la ficha)
 }
 
 // Fila compacta de un pez: imagen pequeña, nombre y un botón de acción
-export function PezFila({ pez, etiquetaAccion, onAccion, onAbrir }: PezFilaProps): React.JSX.Element {
+export function PezFila({
+  pez,
+  etiquetaAccion,
+  descripcionAccion,
+  onAccion,
+  onAbrir,
+}: PezFilaProps): React.JSX.Element {
   return (
     <Pressable
       onPress={() => onAbrir(pez)}
@@ -25,7 +32,14 @@ export function PezFila({ pez, etiquetaAccion, onAccion, onAbrir }: PezFilaProps
         <Text style={styles.cientifico}>{pez.nombreCientifico}</Text>
       </View>
       {/* Botón de acción: al estar dentro de la fila, tocarlo NO abre la ficha */}
-      <Pressable onPress={() => onAccion(pez.id)} hitSlop={8} accessibilityRole="button">
+      {/* accessibilityLabel: sin él, el lector leería los símbolos del texto (ej.: «♥»).
+          Incluimos el nombre del pez para distinguir una fila de otra */}
+      <Pressable
+        onPress={() => onAccion(pez.id)}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={`${descripcionAccion}: ${pez.nombre}`}
+      >
         <Text style={styles.accion}>{etiquetaAccion}</Text>
       </Pressable>
     </Pressable>

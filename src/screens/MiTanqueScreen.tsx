@@ -87,6 +87,7 @@ export function MiTanqueScreen({ navigation }: MiTanqueProps): React.JSX.Element
     <PezFila
       pez={item}
       etiquetaAccion={section.clave === 'tanque' ? 'Quitar' : 'Quitar ♥'}
+      descripcionAccion={section.clave === 'tanque' ? 'Quitar de mi tanque' : 'Quitar de favoritos'}
       onAccion={section.clave === 'tanque' ? quitarPez : alternarFavorito}
       onAbrir={abrirFicha}
     />
