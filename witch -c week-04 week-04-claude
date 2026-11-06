@@ -1,0 +1,15 @@
+[33mefd2ad9[m[33m ([m[1;32mweek-04-claude[m[33m)[m docs(week-04): notas del handoff de la semana 4
+[33m6be839e[m docs(week-04): README con el store de Zustand y la sección de seguridad actualizada
+[33m064de2d[m chore(week-04): fija node-forge 1.4.2 por override y documenta excepciones de audit de herramientas de desarrollo
+[33m05b37fe[m feat(week-04): badge en la pestaña Mi Tanque con el conteo en tiempo real
+[33md73f7d2[m feat(week-04): MiTanqueScreen lee el store: tanque, favoritos, vaciar y carga inicial
+[33m6753dfe[m feat(week-04): PezFila, fila compacta con acción para las listas de Mi Tanque
+[33m24fe4c7[m feat(week-04): botón Agregar/Quitar de mi tanque y favorito en la ficha
+[33me31ea19[m feat(week-04): corazón de favorito en la tarjeta del pez
+[33m3feb628[m feat(week-04): BotonTanque para agregar o quitar un pez del tanque
+[33m96b0ec5[m feat(week-04): BotonFavorito que lee y escribe el store con selectores
+[33m09c766d[m feat(week-04): store único useAcuarioStore con persist, partialize y onRehydrateStorage
+[33m85ed647[m feat(week-04): slices del tanque y de favoritos con acciones tipadas
+[33m7b0bd7d[m chore(week-04): instala zustand 5.0.14 y async-storage 2.2.0 (versión de Expo Go SDK 57)
+[33m12636ee[m feat(week-04): declara ReactNavigation.RootParamList global para tipar useNavigation
+[33m98a9659[m docs(week-04): handoff de la semana 4
