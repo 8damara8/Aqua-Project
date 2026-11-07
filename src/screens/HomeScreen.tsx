@@ -3,6 +3,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -22,7 +23,7 @@ import { SeparadorLista } from '../components/SeparadorLista';
 import { usePeces } from '../hooks/usePeces';
 import type { ListaPecesProps } from '../navigation/types';
 import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
+import { radius, spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import type { FiltroAgua, ModoVista, Pez } from '../types';
 import { cerrarTeclado } from '../utils/cerrarTeclado';
@@ -55,6 +56,11 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
     },
     [navigation],
   );
+
+  // Botón «＋ Nuevo»: abre el formulario de creación
+  const irANuevoPez = useCallback((): void => {
+    navigation.navigate('NuevoPez');
+  }, [navigation]);
 
   // Cómo se dibuja cada elemento de la lista
   const renderPez = useCallback<ListRenderItem<Pez>>(
@@ -149,10 +155,21 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
       >
         {/* Encabezado con el nombre del dominio */}
         <View style={styles.encabezado}>
-          <Text style={styles.titulo}>🐠 Acuario</Text>
-          <Text style={styles.subtitulo}>
-            {isPending ? 'Cargando…' : `${pecesFiltrados.length} de ${catalogo.length} especies`}
-          </Text>
+          <View style={styles.textosEncabezado}>
+            <Text style={styles.titulo}>🐠 Acuario</Text>
+            <Text style={styles.subtitulo}>
+              {isPending ? 'Cargando…' : `${pecesFiltrados.length} de ${catalogo.length} especies`}
+            </Text>
+          </View>
+          {/* Abre el formulario para agregar un pez nuevo */}
+          <Pressable
+            onPress={irANuevoPez}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar un pez nuevo al catálogo"
+            style={({ pressed }) => [styles.botonNuevo, pressed && styles.presionado]}
+          >
+            <Text style={styles.textoBotonNuevo}>＋ Nuevo</Text>
+          </Pressable>
         </View>
 
         {/* Buscador: filtra la lista mientras se escribe */}
@@ -183,10 +200,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.fondo,
   },
   encabezado: {
+    flexDirection: 'row', // textos a la izquierda, botón a la derecha
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.borde,
+  },
+  textosEncabezado: {
+    flex: 1, // ocupa el espacio que deja el botón
+  },
+  botonNuevo: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.boton,
+  },
+  presionado: {
+    opacity: 0.7,
+  },
+  textoBotonNuevo: {
+    ...typography.control,
+    color: colors.botonTexto,
   },
   titulo: {
     ...typography.titulo,

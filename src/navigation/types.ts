@@ -10,6 +10,7 @@ export type DetallePezParams = { pezId: string; nombre: string };
 export type PecesStackParamList = {
   ListaPeces: undefined;
   DetallePez: DetallePezParams;
+  NuevoPez: undefined; // formulario para crear un pez
 };
 
 // Pantallas del Stack de la pestaña «Mi Tanque»
@@ -28,6 +29,7 @@ export type TabParamList = {
 
 // Props que recibe cada pantalla del Stack (incluyen `navigation` y `route` ya tipados)
 export type ListaPecesProps = NativeStackScreenProps<PecesStackParamList, 'ListaPeces'>;
+export type NuevoPezProps = NativeStackScreenProps<PecesStackParamList, 'NuevoPez'>;
 export type ListaTanqueProps = NativeStackScreenProps<MiTanqueStackParamList, 'ListaTanque'>;
 // El detalle solo usa `route`: así el mismo componente sirve en ambos Stacks
 export type DetallePezProps = Pick<NativeStackScreenProps<PecesStackParamList, 'DetallePez'>, 'route'>;
