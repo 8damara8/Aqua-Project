@@ -14,6 +14,22 @@ export interface Pez {
   imagen: ImageSourcePropType;
 }
 
+// Cómo viaja un pez por la red (lo que devuelve el servidor): JSON puro.
+// La diferencia con `Pez` es la imagen: por la red viaja como texto (una clave o una URL)
+// y la app la convierte en una imagen que React Native pueda mostrar.
+export interface PezApi {
+  id: string;
+  nombre: string;
+  nombreCientifico: string;
+  tipoAgua: TipoAgua;
+  tamanoCm: number;
+  temperaturaC: string;
+  imagen: string;
+}
+
+// Lo que el usuario escribe para crear un pez (el servidor le asigna el id y la imagen)
+export type NuevoPez = Omit<PezApi, 'id' | 'imagen'>;
+
 // Forma de mostrar el catálogo: lista simple o agrupada por tipo de agua
 export type ModoVista = 'lista' | 'secciones';
 

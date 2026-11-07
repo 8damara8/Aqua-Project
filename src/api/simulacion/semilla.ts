@@ -1,7 +1,8 @@
-import type { Pez } from '../types';
+import type { PezApi } from '../../types';
 
-// Datos de ejemplo del acuario (más adelante vendrán de una API)
-export const peces: Pez[] = [
+// Peces con los que arranca el servidor simulado. Son datos JSON puros, como los que
+// devolvería una API real: la imagen es un texto (clave) y no un `require`.
+export const SEMILLA_PECES: PezApi[] = [
   {
     id: '1',
     nombre: 'Pez Payaso',
@@ -9,7 +10,7 @@ export const peces: Pez[] = [
     tipoAgua: 'salada',
     tamanoCm: 11,
     temperaturaC: '24-27 °C',
-    imagen: require('../../assets/peces/payaso.png'),
+    imagen: 'payaso',
   },
   {
     id: '2',
@@ -18,7 +19,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 15,
     temperaturaC: '24-28 °C',
-    imagen: require('../../assets/peces/angel.png'),
+    imagen: 'angel',
   },
   {
     id: '3',
@@ -27,7 +28,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 7,
     temperaturaC: '24-30 °C',
-    imagen: require('../../assets/peces/betta.png'),
+    imagen: 'betta',
   },
   {
     id: '4',
@@ -36,7 +37,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 4,
     temperaturaC: '20-26 °C',
-    imagen: require('../../assets/peces/neon.png'),
+    imagen: 'neon',
   },
   {
     id: '5',
@@ -45,7 +46,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 5,
     temperaturaC: '22-28 °C',
-    imagen: require('../../assets/peces/guppy.png'),
+    imagen: 'guppy',
   },
   {
     id: '6',
@@ -54,7 +55,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 20,
     temperaturaC: '18-24 °C',
-    imagen: require('../../assets/peces/dorado.png'),
+    imagen: 'dorado',
   },
   {
     id: '7',
@@ -63,7 +64,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 7,
     temperaturaC: '22-26 °C',
-    imagen: require('../../assets/peces/corydora.png'),
+    imagen: 'corydora',
   },
   {
     id: '8',
@@ -72,7 +73,7 @@ export const peces: Pez[] = [
     tipoAgua: 'dulce',
     tamanoCm: 15,
     temperaturaC: '28-30 °C',
-    imagen: require('../../assets/peces/disco.png'),
+    imagen: 'disco',
   },
   {
     id: '9',
@@ -81,7 +82,7 @@ export const peces: Pez[] = [
     tipoAgua: 'salada',
     tamanoCm: 30,
     temperaturaC: '24-26 °C',
-    imagen: require('../../assets/peces/cirujano.png'),
+    imagen: 'cirujano',
   },
   {
     id: '10',
@@ -90,7 +91,7 @@ export const peces: Pez[] = [
     tipoAgua: 'salada',
     tamanoCm: 23,
     temperaturaC: '24-27 °C',
-    imagen: require('../../assets/peces/mariposa.png'),
+    imagen: 'mariposa',
   },
   {
     id: '11',
@@ -99,7 +100,7 @@ export const peces: Pez[] = [
     tipoAgua: 'salada',
     tamanoCm: 7,
     temperaturaC: '24-27 °C',
-    imagen: require('../../assets/peces/damisela.png'),
+    imagen: 'damisela',
   },
   {
     id: '12',
@@ -108,12 +109,6 @@ export const peces: Pez[] = [
     tipoAgua: 'salada',
     tamanoCm: 8,
     temperaturaC: '24-27 °C',
-    imagen: require('../../assets/peces/cardenal.png'),
+    imagen: 'cardenal',
   },
 ];
-
-// Busca un pez por su id (para la pantalla de detalle).
-// Devuelve undefined si el id no existe, así que quien lo use debe contemplar ese caso.
-export function buscarPezPorId(id: string): Pez | undefined {
-  return peces.find((pez) => pez.id === id);
-}

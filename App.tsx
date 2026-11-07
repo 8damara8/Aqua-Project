@@ -1,7 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { queryClient } from './src/api/queryClient';
 import { PantallaCarga } from './src/components/PantallaCarga';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { temaNavegacion } from './src/navigation/temaNavegacion';
@@ -15,16 +17,19 @@ export default function App(): React.JSX.Element {
   const hidratado = useAcuarioStore((estado) => estado.hidratado);
 
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" />
-      {hidratado ? (
-        // NavigationContainer guarda el estado de la navegación; todo navegador va dentro
-        <NavigationContainer theme={temaNavegacion}>
-          <AppNavigator />
-        </NavigationContainer>
-      ) : (
-        <PantallaCarga />
-      )}
-    </SafeAreaProvider>
+    // QueryClientProvider da acceso a la caché de TanStack Query a todas las pantallas
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        {hidratado ? (
+          // NavigationContainer guarda el estado de la navegación; todo navegador va dentro
+          <NavigationContainer theme={temaNavegacion}>
+            <AppNavigator />
+          </NavigationContainer>
+        ) : (
+          <PantallaCarga />
+        )}
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

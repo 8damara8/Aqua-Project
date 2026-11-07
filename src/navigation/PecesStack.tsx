@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { DetallePezScreen } from '../screens/DetallePezScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { NuevoPezScreen } from '../screens/NuevoPezScreen';
 import { opcionesHeaderStack } from './opcionesHeaderStack';
 import type { PecesStackParamList } from './types';
 
@@ -20,6 +21,8 @@ export function PecesStack(): React.JSX.Element {
         component={DetallePezScreen}
         options={({ route }) => ({ title: route.params.nombre })}
       />
+      {/* Formulario para agregar un pez al catálogo */}
+      <Stack.Screen name="NuevoPez" component={NuevoPezScreen} options={{ title: 'Nuevo pez' }} />
     </Stack.Navigator>
   );
 }

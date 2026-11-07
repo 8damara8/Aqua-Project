@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -12,15 +13,17 @@ import type { ListRenderItem } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BuscadorPeces } from '../components/BuscadorPeces';
 import { ChipsFiltro } from '../components/ChipsFiltro';
+import { EstadoError } from '../components/EstadoError';
 import { ListaPecesAgrupada } from '../components/ListaPecesAgrupada';
 import { ListaVacia } from '../components/ListaVacia';
+import { PantallaCarga } from '../components/PantallaCarga';
 import { PezCard } from '../components/PezCard';
 import { SelectorVista } from '../components/SelectorVista';
 import { SeparadorLista } from '../components/SeparadorLista';
-import { peces } from '../data/peces';
+import { usePeces } from '../hooks/usePeces';
 import type { ListaPecesProps } from '../navigation/types';
 import { colors } from '../theme/colors';
-import { spacing } from '../theme/spacing';
+import { radius, spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import type { FiltroAgua, ModoVista, Pez } from '../types';
 import { cerrarTeclado } from '../utils/cerrarTeclado';
@@ -29,18 +32,22 @@ import { normalizarTexto } from '../utils/normalizarTexto';
 // Clave única por elemento: React la usa para no redibujar de más
 const obtenerClave = (pez: Pez): string => pez.id;
 
+// Lista vacía fija, para usar mientras todavía no llegan los datos (siempre la misma referencia)
+const SIN_PECES: Pez[] = [];
+
 // Pantalla principal (ListaPeces en el Stack): encabezado + lista de peces del acuario
 export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
+  // Catálogo desde el servidor (TanStack Query). Estados que usamos:
+  // isPending = primera carga · isError = falló · isRefetching = recargando · refetch = volver a pedir
+  const { data: peces, isPending, isError, error, refetch, isRefetching } = usePeces();
+  const catalogo = peces ?? SIN_PECES;
+
   // Texto que escribe el usuario en el buscador
   const [busqueda, setBusqueda] = useState('');
   // Filtro por tipo de agua (chips)
   const [filtroAgua, setFiltroAgua] = useState<FiltroAgua>('todos');
   // Vista activa: lista simple o agrupada por tipo de agua
   const [vista, setVista] = useState<ModoVista>('lista');
-  // true mientras se "recarga" la lista (muestra el círculo de carga)
-  const [refrescando, setRefrescando] = useState(false);
-  // Guardamos el temporizador para poder cancelarlo si la pantalla se cierra
-  const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Al tocar «Ver ficha» vamos al detalle y le pasamos los params tipados
   const verFicha = useCallback(
@@ -50,26 +57,28 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
     [navigation],
   );
 
+  // Botón «＋ Nuevo»: abre el formulario de creación
+  const irANuevoPez = useCallback((): void => {
+    navigation.navigate('NuevoPez');
+  }, [navigation]);
+
   // Cómo se dibuja cada elemento de la lista
   const renderPez = useCallback<ListRenderItem<Pez>>(
     ({ item }) => <PezCard pez={item} onVerFicha={verFicha} />,
     [verFicha],
   );
 
-  // Pull-to-refresh simulado: espera 1,5 s como si consultara un servidor
+  // Pull-to-refresh y botón «Reintentar»: vuelven a pedir el catálogo al servidor
   const refrescar = useCallback((): void => {
-    setRefrescando(true);
-    temporizador.current = setTimeout(() => {
-      setRefrescando(false);
-    }, 1500);
-  }, []);
+    void refetch();
+  }, [refetch]);
 
   // Aplica los dos filtros a la vez: tipo de agua (chips) y texto (buscador, por
   // nombre o nombre científico). useMemo evita repetir el cálculo en cada render:
   // solo se recalcula si cambia la búsqueda o el filtro.
   const pecesFiltrados = useMemo(() => {
     const termino = normalizarTexto(busqueda);
-    return peces.filter((pez) => {
+    return catalogo.filter((pez) => {
       const coincideAgua = filtroAgua === 'todos' || pez.tipoAgua === filtroAgua;
       const coincideTexto =
         termino === '' ||
@@ -77,7 +86,7 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
         normalizarTexto(pez.nombreCientifico).includes(termino);
       return coincideAgua && coincideTexto;
     });
-  }, [busqueda, filtroAgua]);
+  }, [catalogo, busqueda, filtroAgua]);
 
   // Mensaje cuando no hay resultados (distinto si hay búsqueda, filtro o nada)
   let mensajeVacio = 'No hay peces en el acuario';
@@ -90,7 +99,7 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
   // Mismo control de refresco para las dos listas
   const controlRefresco = (
     <RefreshControl
-      refreshing={refrescando}
+      refreshing={isRefetching}
       onRefresh={refrescar}
       tintColor={colors.acento} // color del círculo en iOS
       colors={[colors.acento]} // color del círculo en Android
@@ -98,14 +107,41 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
     />
   );
 
-  // Al desmontar la pantalla, cancelamos el temporizador pendiente
-  useEffect(() => {
-    return () => {
-      if (temporizador.current) {
-        clearTimeout(temporizador.current);
-      }
-    };
-  }, []);
+  // Qué se dibuja bajo los filtros según el estado de la consulta
+  let contenido: React.JSX.Element;
+  if (isPending) {
+    contenido = <PantallaCarga mensaje="Cargando peces…" />;
+  } else if (isError && peces === undefined) {
+    // Falló y no hay datos que mostrar: error con botón para reintentar
+    contenido = <EstadoError mensaje={error.message} onReintentar={refrescar} />;
+  } else if (vista === 'lista') {
+    // FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map)
+    contenido = (
+      <FlatList
+        data={pecesFiltrados}
+        renderItem={renderPez}
+        keyExtractor={obtenerClave}
+        ItemSeparatorComponent={SeparadorLista}
+        ListEmptyComponent={<ListaVacia mensaje={mensajeVacio} />}
+        contentContainerStyle={styles.lista}
+        // 'handled': tocar un botón de la tarjeta funciona sin cerrar antes el teclado
+        keyboardShouldPersistTaps="handled"
+        // Al empezar a desplazar la lista, se cierra el teclado
+        onScrollBeginDrag={cerrarTeclado}
+        refreshControl={controlRefresco}
+      />
+    );
+  } else {
+    // SectionList: los mismos peces, agrupados por tipo de agua
+    contenido = (
+      <ListaPecesAgrupada
+        peces={pecesFiltrados}
+        mensajeVacio={mensajeVacio}
+        refreshControl={controlRefresco}
+        onVerFicha={verFicha}
+      />
+    );
+  }
 
   return (
     // SafeAreaView evita que el contenido quede bajo la barra de estado / notch.
@@ -119,10 +155,21 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
       >
         {/* Encabezado con el nombre del dominio */}
         <View style={styles.encabezado}>
-          <Text style={styles.titulo}>🐠 Acuario</Text>
-          <Text style={styles.subtitulo}>
-            {pecesFiltrados.length} de {peces.length} especies
-          </Text>
+          <View style={styles.textosEncabezado}>
+            <Text style={styles.titulo}>🐠 Acuario</Text>
+            <Text style={styles.subtitulo}>
+              {isPending ? 'Cargando…' : `${pecesFiltrados.length} de ${catalogo.length} especies`}
+            </Text>
+          </View>
+          {/* Abre el formulario para agregar un pez nuevo */}
+          <Pressable
+            onPress={irANuevoPez}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar un pez nuevo al catálogo"
+            style={({ pressed }) => [styles.botonNuevo, pressed && styles.presionado]}
+          >
+            <Text style={styles.textoBotonNuevo}>＋ Nuevo</Text>
+          </Pressable>
         </View>
 
         {/* Buscador: filtra la lista mientras se escribe */}
@@ -134,30 +181,14 @@ export function HomeScreen({ navigation }: ListaPecesProps): React.JSX.Element {
         {/* Selector: lista simple o agrupada por tipo de agua */}
         <SelectorVista valor={vista} onCambiar={setVista} />
 
-        {vista === 'lista' ? (
-          // FlatList: solo dibuja las tarjetas visibles (más eficiente que ScrollView + map)
-          <FlatList
-            data={pecesFiltrados}
-            renderItem={renderPez}
-            keyExtractor={obtenerClave}
-            ItemSeparatorComponent={SeparadorLista}
-            ListEmptyComponent={<ListaVacia mensaje={mensajeVacio} />}
-            contentContainerStyle={styles.lista}
-            // 'handled': tocar un botón de la tarjeta funciona sin cerrar antes el teclado
-            keyboardShouldPersistTaps="handled"
-            // Al empezar a desplazar la lista, se cierra el teclado
-            onScrollBeginDrag={cerrarTeclado}
-            refreshControl={controlRefresco}
-          />
-        ) : (
-          // SectionList: los mismos peces, agrupados por tipo de agua
-          <ListaPecesAgrupada
-            peces={pecesFiltrados}
-            mensajeVacio={mensajeVacio}
-            refreshControl={controlRefresco}
-            onVerFicha={verFicha}
-          />
+        {/* Si una recarga falla pero ya teníamos datos, los mantenemos y avisamos */}
+        {isError && peces !== undefined && (
+          <Text style={styles.aviso} accessibilityRole="alert">
+            No se pudo actualizar la lista. Mostrando los últimos datos.
+          </Text>
         )}
+
+        {contenido}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -169,10 +200,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.fondo,
   },
   encabezado: {
+    flexDirection: 'row', // textos a la izquierda, botón a la derecha
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.borde,
+  },
+  textosEncabezado: {
+    flex: 1, // ocupa el espacio que deja el botón
+  },
+  botonNuevo: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.boton,
+  },
+  presionado: {
+    opacity: 0.7,
+  },
+  textoBotonNuevo: {
+    ...typography.control,
+    color: colors.botonTexto,
   },
   titulo: {
     ...typography.titulo,
@@ -185,5 +235,11 @@ const styles = StyleSheet.create({
   },
   lista: {
     padding: spacing.lg,
+  },
+  aviso: {
+    ...typography.subtitulo,
+    color: colors.peligro,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.sm,
   },
 });

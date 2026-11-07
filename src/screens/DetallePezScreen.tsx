@@ -1,10 +1,14 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { BotonEliminarPez } from '../components/BotonEliminarPez';
 import { BotonFavorito } from '../components/BotonFavorito';
 import { BotonTanque } from '../components/BotonTanque';
 import { DatoFicha } from '../components/DatoFicha';
+import { EstadoError } from '../components/EstadoError';
 import { ListaVacia } from '../components/ListaVacia';
-import { buscarPezPorId } from '../data/peces';
+import { PantallaCarga } from '../components/PantallaCarga';
+import { usePez } from '../hooks/usePeces';
 import type { DetallePezProps } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { radius, spacing } from '../theme/spacing';
@@ -14,12 +18,27 @@ import { typography } from '../theme/typography';
 // El Stack ya dibuja el header (con el nombre del pez) y la barra de pestañas cubre
 // la parte de abajo, por eso aquí no hace falta SafeAreaView.
 export function DetallePezScreen({ route }: DetallePezProps): React.JSX.Element {
-  // Leemos el id que mandó la lista al navegar y buscamos el pez en los datos
+  // Leemos el id que mandó la lista al navegar y pedimos ese pez (sale de la caché del catálogo)
   const { pezId } = route.params;
-  const pez = buscarPezPorId(pezId);
+  const { data: pez, isPending, isError, error, refetch } = usePez(pezId);
+  const navigation = useNavigation();
 
-  // Si el id no existe, mostramos un mensaje en vez de romper la pantalla
-  if (!pez) {
+  // Todavía no hay pez que mostrar: cargando, error o simplemente no existe
+  if (pez === undefined) {
+    if (isPending) {
+      return <PantallaCarga mensaje="Cargando ficha…" />;
+    }
+    if (isError) {
+      return (
+        <EstadoError
+          mensaje={error.message}
+          onReintentar={() => {
+            void refetch();
+          }}
+        />
+      );
+    }
+    // La consulta terminó bien pero ese id no está en el catálogo (por ejemplo, lo eliminaron)
     return (
       <View style={styles.pantalla}>
         <ListaVacia mensaje="No encontramos este pez" />
@@ -55,6 +74,13 @@ export function DetallePezScreen({ route }: DetallePezProps): React.JSX.Element 
 
       {/* Agrega o quita este pez de «Mi Tanque» (estado global compartido) */}
       <BotonTanque pezId={pez.id} />
+
+      {/* Elimina el pez del servidor y, si sale bien, vuelve a la pantalla anterior */}
+      <BotonEliminarPez
+        pezId={pez.id}
+        nombre={pez.nombre}
+        onEliminado={() => navigation.goBack()}
+      />
     </ScrollView>
   );
 }
