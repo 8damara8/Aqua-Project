@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import { Alert, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import type { SectionListRenderItem } from 'react-native';
+import { EstadoError } from '../components/EstadoError';
+import { PantallaCarga } from '../components/PantallaCarga';
 import { PezFila } from '../components/PezFila';
-import { buscarPezPorId } from '../data/peces';
+import { usePeces } from '../hooks/usePeces';
 import type { ListaTanqueProps } from '../navigation/types';
 import { useAcuarioStore } from '../store';
 import { colors } from '../theme/colors';
@@ -18,11 +20,12 @@ interface SeccionMiTanque {
   data: Pez[];
 }
 
-// Convierte una lista de ids en peces completos (ignora ids que ya no existan)
-function resolverPeces(ids: string[]): Pez[] {
+// Convierte una lista de ids en peces completos, buscándolos en el catálogo del servidor.
+// Ignora los ids que ya no existan (por ejemplo, un pez que se eliminó).
+function resolverPeces(ids: string[], catalogo: Pez[]): Pez[] {
   const peces: Pez[] = [];
   for (const id of ids) {
-    const pez = buscarPezPorId(id);
+    const pez = catalogo.find((candidato) => candidato.id === id);
     if (pez) {
       peces.push(pez);
     }
@@ -30,11 +33,16 @@ function resolverPeces(ids: string[]): Pez[] {
   return peces;
 }
 
+// Lista vacía fija, para usar mientras todavía no llegan los datos
+const SIN_PECES: Pez[] = [];
+
 const obtenerClave = (pez: Pez): string => pez.id;
 
 // Pestaña «Mi Tanque»: muestra lo que hay en el store global (tanque y favoritos).
 // Cuando se monta, App.tsx ya esperó a que el store leyera lo guardado en el celular.
 export function MiTanqueScreen({ navigation }: ListaTanqueProps): React.JSX.Element {
+  // El store solo guarda ids; los peces completos salen del catálogo del servidor
+  const { data: catalogo, isPending, isError, error, refetch } = usePeces();
   // Selectores específicos: cada línea pide SOLO el dato que necesita esta pantalla
   const idsTanque = useAcuarioStore((estado) => estado.idsTanque);
   const idsFavoritos = useAcuarioStore((estado) => estado.idsFavoritos);
@@ -51,16 +59,16 @@ export function MiTanqueScreen({ navigation }: ListaTanqueProps): React.JSX.Elem
         clave: 'tanque',
         titulo: 'En mi tanque',
         mensajeVacio: 'Abre la ficha de un pez y toca «Agregar a mi tanque».',
-        data: resolverPeces(idsTanque),
+        data: resolverPeces(idsTanque, catalogo ?? SIN_PECES),
       },
       {
         clave: 'favoritos',
         titulo: 'Mis favoritos',
         mensajeVacio: 'Toca el corazón de un pez para guardarlo aquí.',
-        data: resolverPeces(idsFavoritos),
+        data: resolverPeces(idsFavoritos, catalogo ?? SIN_PECES),
       },
     ],
-    [idsTanque, idsFavoritos],
+    [idsTanque, idsFavoritos, catalogo],
   );
 
   // Abrimos la ficha dentro del Stack de esta misma pestaña: «atrás» vuelve a Mi Tanque
@@ -100,6 +108,21 @@ export function MiTanqueScreen({ navigation }: ListaTanqueProps): React.JSX.Elem
           Abre la ficha de un pez y toca «Agregar a mi tanque». Con el corazón guardas tus favoritos.
         </Text>
       </View>
+    );
+  }
+
+  // Hay ids guardados pero todavía no llega el catálogo: cargando o error
+  if (isPending) {
+    return <PantallaCarga mensaje="Cargando tus peces…" />;
+  }
+  if (isError && catalogo === undefined) {
+    return (
+      <EstadoError
+        mensaje={error.message}
+        onReintentar={() => {
+          void refetch();
+        }}
+      />
     );
   }
 
