@@ -28,11 +28,17 @@ pnpm seguridad    # auditoría de dependencias
   (tanque + favoritos) que se guarda en el celular con `persist` y `AsyncStorage`.
   Desde la ficha se agrega/quita un pez del tanque, el corazón marca favoritos, la pestaña
   «Mi Tanque» lista ambos grupos y muestra un **badge** con la cantidad de peces en tiempo real.
+- **Semana 5:** datos del «servidor» con **Axios** y **TanStack Query v5**. Los peces ya no son un
+  archivo local: se piden con `useQuery` (carga, error con «Reintentar», refetch), se crean con la
+  pantalla «Nuevo pez» y se eliminan desde la ficha con `useMutation` + `invalidateQueries`.
+  El servidor es simulado (un adaptador de Axios en memoria); ver variables de entorno abajo.
 
 ## Estructura de `src/`
 ```
 components/   un componente por archivo (PezCard, BuscadorPeces, ChipsFiltro, ...)
-data/         datos de ejemplo (peces.ts)
+api/          cliente Axios, errores, funciones de peces, queryClient y servidor simulado (simulacion/)
+hooks/        usePeces, usePez, useCrearPez, useEliminarPez (TanStack Query)
+data/         imagenes.ts (clave de imagen -> require)
 navigation/   AppNavigator (tabs + badge), PecesStack, MiTanqueStack, tipos de params y tema de navegación
 screens/      pantallas (HomeScreen, DetallePezScreen, MiTanqueScreen)
 store/        useAcuarioStore (index.ts), slices (tanque, favoritos) y sus tipos
@@ -47,10 +53,17 @@ utils/        funciones pequeñas (normalizarTexto, cerrarTeclado)
 const enTanque = useAcuarioStore((estado) => estado.idsTanque.includes(pezId));
 const agregarPez = useAcuarioStore((estado) => estado.agregarPez);
 ```
-- Se guardan solo **ids** (`idsTanque`, `idsFavoritos`); el pez completo se busca con `buscarPezPorId`.
+- Se guardan solo **ids** (`idsTanque`, `idsFavoritos`); el pez completo viene de TanStack Query (estado del servidor, nunca en Zustand).
 - `partialize` deja fuera `hidratado`, un dato volátil que indica si ya se leyó lo guardado.
 - `onRehydrateStorage` marca `hidratado = true` al terminar de leer, y `App.tsx` no monta el
   navegador (muestra `PantallaCarga`) hasta entonces, para que ningún toque se pierda en el arranque.
+
+## Datos del servidor (semana 5)
+Variables opcionales en `.env` (todo `EXPO_PUBLIC_*` es público, no guardes secretos):
+- `EXPO_PUBLIC_API_URL`: URL de una API real. Si no existe, se usa el servidor simulado.
+- `EXPO_PUBLIC_SIMULAR_ERROR=true`: fuerza un error de red para probar la pantalla de error.
+
+Con el servidor simulado los cambios (crear/eliminar) se pierden al cerrar la app.
 
 ## Seguridad
 - Versiones exactas (sin `^` ni `~`) y `pnpm-lock.yaml` versionado.
