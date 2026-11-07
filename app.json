@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Acuario",
+    "slug": "acuario",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": { "supportsTablet": false },
+    "android": {},
+    "extra": { "dominio": "acuario" }
+  }
+}
